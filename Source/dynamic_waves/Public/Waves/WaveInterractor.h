@@ -3,17 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
-#include "Waves.generated.h"
+#include "GameFramework/Actor.h"
+#include "WaveInterractor.generated.h"
 
 UCLASS()
-class DYNAMIC_WAVES_API AWaves : public APawn
+class DYNAMIC_WAVES_API AWaveInterractor : public AActor
 {
 	GENERATED_BODY()
-
-public:
-	// Sets default values for this pawn's properties
-	AWaves();
+	
+public:	
+	// Sets default values for this actor's properties
+	AWaveInterractor();
 
 protected:
 	// Called when the game starts or when spawned
@@ -24,8 +24,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 	UPROPERTY(VisibleAnyWhere, BlueprintReadOnly, Category = "Waves")
-	UStaticMeshComponent* wave_mesh;
-	
-	UPROPERTY(EditAnywhere, Category = "Waves")
-	UMaterial* test_material;
+	UStaticMeshComponent* box_mesh;
+
 };
