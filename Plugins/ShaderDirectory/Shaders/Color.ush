@@ -1,0 +1,10 @@
+float time = Time;
+float3 color = Color;
+float a = sin(time);
+color = normalize(color);
+// color = mul(color, (0.01, 0.01, 0.01));
+float3 phase = color - time;
+
+float3 mage = sin(phase);
+
+return mage;
