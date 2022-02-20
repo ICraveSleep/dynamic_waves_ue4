@@ -1,10 +1,11 @@
 float time = Time;
+float PI = 3.1415926535897932f;
 float3 pos = Pos;
-float3 direction = {1.0, 0.32, 0.0};
+float3 direction = {1.0, 0.0, 0.0};
 direction = normalize(direction);
 direction = dot(pos, direction);
 direction = mul(direction, 0.01f);
 float3 phase = direction - time;
-float3 wave = 30.0f*cos(2.09f*phase); 
+float3 wave = 30.0f*cos((PI*2/3)*phase); 
 float height = wave.z;
 return float3(0.0, 0.0, height);
