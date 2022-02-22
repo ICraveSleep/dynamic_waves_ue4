@@ -3,7 +3,9 @@ float PI = 3.1415926535897932f;
 float2 world_pos = Pos.xy;
 float2 direction = {1.0, 1.0};
 direction = normalize(direction);
+float test = dot(world_pos, direction);
 
-float wave = 30.0f*sin(0.01*(PI*2/3)*direction*world_pos + time); 
+// float3 wave = 30.0f*sin(0.01*(PI*2/3)*direction*world_pos + time); 
+float wave = 30.0f*sin(0.01*(PI*2/3)*test + time); 
 float height = wave;
 return float3(0.0, 0.0, height);
