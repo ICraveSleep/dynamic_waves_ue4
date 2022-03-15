@@ -34,7 +34,7 @@ void AWaveInterractor::Tick(float DeltaTime)
 	direction.Normalize();
 	float time = this->GetWorld()->GetTimeSeconds();
 	
-	float height =30*sin( 0.01*((PI*2)/3)*(world_pos.X*direction.X + world_pos.Y*direction.Y) + time);
+	float height =30*sin( 0.01*((PI*2)/6)*(world_pos.X*direction.X + world_pos.Y*direction.Y) + time);
 	// box_mesh->SetRelativeLocation({0.0f,0.0f,height});
 	FVector position = box_mesh->GetComponentLocation();
 	FVector velocity = box_mesh->GetPhysicsLinearVelocity();

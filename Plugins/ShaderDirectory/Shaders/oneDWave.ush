@@ -6,6 +6,6 @@ direction = normalize(direction);
 float test = dot(world_pos, direction);
 
 // float3 wave = 30.0f*sin(0.01*(PI*2/3)*direction*world_pos + time); 
-float wave = 30.0f*sin(0.01*(PI*2/3)*test + time); 
+float wave = 30.0f*sin(0.01*(PI*2/6)*test + time); 
 float height = wave;
 return float3(0.0, 0.0, height);
