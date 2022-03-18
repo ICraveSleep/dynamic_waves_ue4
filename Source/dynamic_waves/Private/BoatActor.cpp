@@ -60,8 +60,8 @@ void ABoatActor::Tick(float DeltaTime)
 				const FVector WorldSpaceVertexLocation = GetActorLocation() + GetTransform().TransformVector(VertexBuffer->VertexPosition(VertexIndex));
 				if(first_run)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("VertexSize: %i, TriangleSize: %i"), VertexBuffer->GetNumVertices(), TriangleBuffer.Num())
-					UE_LOG(LogTemp, Warning, TEXT("VertexCount[%i] - TriangleIndex[%i] = %i"), VertexIndex,VertexIndex, TriangleBuffer[VertexIndex]);
+					//UE_LOG(LogTemp, Warning, TEXT("VertexSize: %i, TriangleSize: %i"), VertexBuffer->GetNumVertices(), TriangleBuffer.Num())
+					//UE_LOG(LogTemp, Warning, TEXT("VertexCount[%i] - TriangleIndex[%i] = %i"), VertexIndex,VertexIndex, TriangleBuffer[VertexIndex]);
 					if(TriangleBuffer[VertexIndex] == 635)
 					{
 					//	UE_LOG(LogTemp, Warning, TEXT("VertexCount[%i] - TriangleIndex[%i]"), VertexIndex, TriangleBuffer[VertexIndex]);
@@ -77,7 +77,7 @@ void ABoatActor::Tick(float DeltaTime)
 			const int32 TriangleCount = TriangleBuffer.Num();
 			for(int32 VertexIndex = 0; VertexIndex < TriangleCount; VertexIndex++){
 				if(first_run){
-					UE_LOG(LogTemp, Warning, TEXT("TriangleSize: %i, Triangle[%i]: %i"), TriangleBuffer.Num(), VertexIndex, TriangleBuffer[VertexIndex])
+					//UE_LOG(LogTemp, Warning, TEXT("TriangleSize: %i, Triangle[%i]: %i"), TriangleBuffer.Num(), VertexIndex, TriangleBuffer[VertexIndex])
 					}
 				}
 			}
@@ -100,19 +100,17 @@ void ABoatActor::Tick(float DeltaTime)
 			float x_sum = Vertices[TriangleBuffer[i-1]].X + Vertices[TriangleBuffer[i]].X + Vertices[TriangleBuffer[i+1]].X;
 			float y_sum = Vertices[TriangleBuffer[i-1]].Y + Vertices[TriangleBuffer[i]].Y + Vertices[TriangleBuffer[i+1]].Y;
 			float z_sum = Vertices[TriangleBuffer[i-1]].Z + Vertices[TriangleBuffer[i]].Z + Vertices[TriangleBuffer[i+1]].Z;
-			FVector center = {x_sum, y_sum, z_sum};
+			FVector center = {x_sum/3.0f, y_sum/3.0f, z_sum/3.0f};
 			// if(Vertices[TriangleBuffer[i-1]].Z < 0)
 			// if(Vertices[TriangleBuffer[i-1]].Z < 0)
 			if(center.Z < 0)
 			{
-				// FVector2D A_Vector = {Vertices[TriangleBuffer[i]].X - Vertices[TriangleBuffer[i-1]].X, Vertices[TriangleBuffer[i]].Y - Vertices[TriangleBuffer[i-1]].Y}; 
-				// FVector2D B_Vector = {Vertices[TriangleBuffer[i+1]].X - Vertices[TriangleBuffer[i-1]].X, Vertices[TriangleBuffer[i+1]].Y - Vertices[TriangleBuffer[i-1]].Y};
-				// float n_x = A_Vector.Y * 0.0f - 0.0f * B_Vector.Y;
-				// float n_y = 0.0f * B_Vector.X - A_Vector.X * 0.0f;
-				// float n_z = A_Vector.X * B_Vector.Y - A_Vector.Y * B_Vector.X;
-				// FVector normal = {n_x, n_y, n_z};
-				// DrawDebugLine(this->GetWorld(), center, normal, FColor{0,0,255}, false, 0.0f, 0, 2.0f);
-
+				FVector p1 = Vertices[TriangleBuffer[i-1]];
+				FVector p2 = Vertices[TriangleBuffer[i]];
+				FVector p3 = Vertices[TriangleBuffer[i+1]];
+				FVector normal = FVector::CrossProduct(p3-p1, p2-p1);
+				DrawDebugLine(this->GetWorld(), center, normal, FColor{0,0,255}, false, 0.0f, 0, 2.0f);
+				DrawDebugPoint(this->GetWorld(), center, 20.0f, FColor(0, 0, 0),false, 0.0f);
 				DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i-1]], Vertices[TriangleBuffer[i]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
 				DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i]], Vertices[TriangleBuffer[i+1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
 				DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i+1]], Vertices[TriangleBuffer[i-1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
