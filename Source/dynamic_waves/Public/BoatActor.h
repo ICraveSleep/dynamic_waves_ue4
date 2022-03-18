@@ -24,6 +24,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Boat")
 	UStaticMeshComponent* BoatSim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Boat")
+	bool DrawNormals = false;
 	
 protected:
 	// Called when the game starts or when spawned
