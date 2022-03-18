@@ -97,11 +97,26 @@ void ABoatActor::Tick(float DeltaTime)
 		}
 		
 		for(int i = 1; i < TriangleBuffer.Num(); i=i+3){
-			if(Vertices[TriangleBuffer[i-1]].Z < 0)
+			float x_sum = Vertices[TriangleBuffer[i-1]].X + Vertices[TriangleBuffer[i]].X + Vertices[TriangleBuffer[i+1]].X;
+			float y_sum = Vertices[TriangleBuffer[i-1]].Y + Vertices[TriangleBuffer[i]].Y + Vertices[TriangleBuffer[i+1]].Y;
+			float z_sum = Vertices[TriangleBuffer[i-1]].Z + Vertices[TriangleBuffer[i]].Z + Vertices[TriangleBuffer[i+1]].Z;
+			FVector center = {x_sum, y_sum, z_sum};
+			// if(Vertices[TriangleBuffer[i-1]].Z < 0)
+			// if(Vertices[TriangleBuffer[i-1]].Z < 0)
+			if(center.Z < 0)
 			{
+				// FVector2D A_Vector = {Vertices[TriangleBuffer[i]].X - Vertices[TriangleBuffer[i-1]].X, Vertices[TriangleBuffer[i]].Y - Vertices[TriangleBuffer[i-1]].Y}; 
+				// FVector2D B_Vector = {Vertices[TriangleBuffer[i+1]].X - Vertices[TriangleBuffer[i-1]].X, Vertices[TriangleBuffer[i+1]].Y - Vertices[TriangleBuffer[i-1]].Y};
+				// float n_x = A_Vector.Y * 0.0f - 0.0f * B_Vector.Y;
+				// float n_y = 0.0f * B_Vector.X - A_Vector.X * 0.0f;
+				// float n_z = A_Vector.X * B_Vector.Y - A_Vector.Y * B_Vector.X;
+				// FVector normal = {n_x, n_y, n_z};
+				// DrawDebugLine(this->GetWorld(), center, normal, FColor{0,0,255}, false, 0.0f, 0, 2.0f);
+
 				DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i-1]], Vertices[TriangleBuffer[i]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
 				DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i]], Vertices[TriangleBuffer[i+1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
-				DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i+1]], Vertices[TriangleBuffer[i-1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);	
+				DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i+1]], Vertices[TriangleBuffer[i-1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
+				
 			}
 		}
 	}
