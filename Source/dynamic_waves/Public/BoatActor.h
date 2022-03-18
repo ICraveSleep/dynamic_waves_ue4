@@ -36,4 +36,5 @@ public:
 private:
 	TArray<FVector> Vertices;
 	TArray<int32> Triangles;
+	bool first_run = true;
 };

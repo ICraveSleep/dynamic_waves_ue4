@@ -6,3 +6,5 @@ https://user-images.githubusercontent.com/69819322/154137215-fad47aa3-624a-43f4-
 
 ### "Triangulate" mesh in blender:
 https://blender.stackexchange.com/questions/19253/how-to-make-all-polygons-into-triangles
+
+Vertex to Triangle relation: https://forums.unrealengine.com/t/accessing-static-mesh-triangles/90709

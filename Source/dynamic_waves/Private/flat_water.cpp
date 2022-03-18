@@ -2,7 +2,6 @@
 
 
 #include "flat_water.h"
-
 #include "../../../Plugins/Developer/RiderLink/Source/RD/thirdparty/clsocket/src/ActiveSocket.h"
 
 // Sets default values
