@@ -11,11 +11,23 @@ ABoatActor::ABoatActor()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> BoatMesh(TEXT("/Game/Meshes/SM_Boat.SM_Boat"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> SimMesh(TEXT("/Game/Meshes/SM_Boat_Tri.SM_Boat_Tri"));
+	uint8_t select = 1;
+
+	
+	
+	
+	// static ConstructorHelpers::FObjectFinder<UStaticMesh> BoatMesh(TEXT("/Game/Meshes/SM_Boat.SM_Boat"));
+	// static ConstructorHelpers::FObjectFinder<UStaticMesh> SimMesh(TEXT("/Game/Meshes/SM_Boat_Tri.SM_Boat_Tri"));	
+
+
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BoatMesh(TEXT("/Game/Meshes/SM_Box.SM_Box"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> SimMesh(TEXT("/Game/Meshes/SM_Box.SM_Box"));
+
 
 	// static ConstructorHelpers::FObjectFinder<UStaticMesh> BoatMesh(TEXT("/Game/Meshes/box.box"));
-	// static ConstructorHelpers::FObjectFinder<UStaticMesh> SimMesh(TEXT("/Game/Meshes/box.box"));
+	// static ConstructorHelpers::FObjectFinder<UStaticMesh> SimMesh(TEXT("/Game/Meshes/box.box"));	
+	
 	
 	ThisSceneRoot = CreateDefaultSubobject<USceneComponent>("Root");
 	RootComponent = ThisSceneRoot;
@@ -119,26 +131,58 @@ void ABoatActor::Tick(float DeltaTime)
 				DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i]], Vertices[TriangleBuffer[i+1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
 				DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i+1]], Vertices[TriangleBuffer[i-1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
 
-				float a = FVector::Distance(p1, p2);
-				float b = FVector::Distance(p3, p2);
-				float w = acos(FVector::DotProduct(p3-p1, p2-p1) / (a*b));
-				if(w < 0)
+				float a = FVector::Distance(p2, p1);
+				float b = FVector::Distance(p3, p1);
+				float Dot_Product = FVector::DotProduct(p2-p1, p3-p1) / (a*b);
+				float w = acos(Dot_Product);  //TODO(Sondre): This can return -nand(ind), Has to be verified that it calculates the correct angle between a and b
+
+				if(w > 0)
 				{
-					w = 0;
-				}
-				float AreaTriangle = 0.5*a*b*sin(w);
-				if(first_run){
-					UE_LOG(LogTemp, Warning, TEXT("Area[%i]: %f[cm^2]"), i, AreaTriangle);
+					//UE_LOG(LogTemp, Warning, TEXT("w: %f, dot: %f"), w, Dot_Product);
 				}
 				
-				FVector Force = 0.00001f * center * AreaTriangle * normal;
+				if(w < 0){
+					UE_LOG(LogTemp, Warning, TEXT("Calculated angle that was negative: w=%f"), w);
+					w = 0;
+				}
+				float AreaTriangle = 0.5*a*b*sin(w); // is in cm^2
+				AreaTriangle = AreaTriangle*0.00001; // Convert to m^2
+				if(first_run){
+					//UE_LOG(LogTemp, Warning, TEXT("Area[%i]: %f[cm^2]"), i, AreaTriangle);
+				}
+				
+				FVector Force =  1027.0f * center.Z*0.01f * AreaTriangle * normal*0.01f;
+				Force.X = 0.0f;
+				Force.Y = 0.0f;
 				// UE_LOG(LogTemp, Warning, TEXT("Area[%i]: %f[cm^2]"), i, AreaTriangle);
-				Boat->AddForceAtLocation({0.0f, 0.0f, Force.Z}, center, NAME_None);
-				// Boat->AddForceAtLocation(Force, center, NAME_None);
+				// Boat->AddForceAtLocation({0.0f, 0.0f, Force.Z}, center, NAME_None);
+				Boat->AddForceAtLocation(Force, center, NAME_None);
 				// Boat->AddForceAtLocation({0.0f, 0.0f, 400.0f}, center, NAME_None);
+
+				FVector drag = {0.0f, 0.0f, 0.0f};
+				float C = 20.0f;
+				float R = 0;
+				// float R = 0.5f*TotalSubmerged_Area*1027.0f*C*Boat->GetPhysicsLinearVelocity().Z*Boat->GetPhysicsLinearVelocity().Z;
+				float V = Boat->GetComponentVelocity().Z;
+				
+				V = V*0.01f;
+				// UE_LOG(LogTemp, Warning, TEXT("Vel: %f"), V);
+				if(V < 0)
+				{
+					 R = 0.5f*AreaTriangle*1027.0f*C*V*V;	
+				}
+				else
+				{
+					R = -0.5f*AreaTriangle*1027.0f*C*V*V;
+				}
+		
+				drag.Z = R;
+				// Boat->AddForceAtLocation(drag, center, NAME_None);
 			}
 		}
 
+		
+		
 		if(first_run){
 			first_run = false;
 		}
