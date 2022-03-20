@@ -158,26 +158,30 @@ void ABoatActor::Tick(float DeltaTime)
 				// Boat->AddForceAtLocation({0.0f, 0.0f, Force.Z}, center, NAME_None);
 				Boat->AddForceAtLocation(Force, center, NAME_None);
 				// Boat->AddForceAtLocation({0.0f, 0.0f, 400.0f}, center, NAME_None);
-
+				
 				FVector drag = {0.0f, 0.0f, 0.0f};
-				float C = 20.0f;
+				float C = 8.8f;
 				float R = 0;
 				// float R = 0.5f*TotalSubmerged_Area*1027.0f*C*Boat->GetPhysicsLinearVelocity().Z*Boat->GetPhysicsLinearVelocity().Z;
-				float V = Boat->GetComponentVelocity().Z;
-				
+				FVector V = Boat->GetComponentVelocity();
 				V = V*0.01f;
+				FVector W = Boat->GetPhysicsAngularVelocityInRadians();
+				FVector R_BA = center - Boat->GetCenterOfMass();
+				//UE_LOG(LogTemp, Warning, TEXT("Center of mass: {%f, %f, %f}"), Boat->GetCenterOfMass().X, Boat->GetCenterOfMass().Y, Boat->GetCenterOfMass().Z);
+				FVector V_A =  V + FVector::CrossProduct(W, R_BA)*0.01f;
+				
 				// UE_LOG(LogTemp, Warning, TEXT("Vel: %f"), V);
-				if(V < 0)
+				if(V_A.Z < 0)
 				{
-					 R = 0.5f*AreaTriangle*1027.0f*C*V*V;	
+					 R = 0.5f*AreaTriangle*1027.0f*C*V_A.Z*V_A.Z;	
 				}
 				else
 				{
-					R = -0.5f*AreaTriangle*1027.0f*C*V*V;
+					R = -0.5f*AreaTriangle*1027.0f*C*V_A.Z*V_A.Z;
 				}
 		
 				drag.Z = R;
-				// Boat->AddForceAtLocation(drag, center, NAME_None);
+				Boat->AddForceAtLocation(drag, center, NAME_None);
 			}
 		}
 
