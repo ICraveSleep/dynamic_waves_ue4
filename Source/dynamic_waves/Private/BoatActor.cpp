@@ -130,7 +130,7 @@ void ABoatActor::Tick(float DeltaTime)
 
 			if(first_run)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Center: %f - Height: %f"), center.Z, WaveHeight);
+				// UE_LOG(LogTemp, Warning, TEXT("Center: %f - Height: %f"), center.Z, WaveHeight);
 			}
 			
 			if(center.Z <= WaveHeight)
