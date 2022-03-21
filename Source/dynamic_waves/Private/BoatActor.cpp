@@ -103,11 +103,14 @@ void ABoatActor::Tick(float DeltaTime)
 			// DrawDebugPoint(this->GetWorld(), Vertices[1], 15.0f, FColor(0, 255, 0),false, 0.0f);	
 			// DrawDebugPoint(this->GetWorld(), Vertices[2], 15.0f, FColor(255, 255, 0),false, 0.0f);	
 			// DrawDebugPoint(this->GetWorld(), Vertices[3], 15.0f, FColor(0, 0, 255),false, 0.0f);
+			
 			DrawDebugPoint(this->GetWorld(), Vertices[i], 15.0f, FColor(255, 0, 0),false, 0.0f);
 		}
 
-		FBodyInstance *Body = Boat->GetBodyInstance();
-		DrawDebugSphere(GetWorld(), Body->GetCOMPosition(), 100.f, 32, FColor::Yellow);
+		// FBodyInstance *Body = Boat->GetBodyInstance();
+		// DrawDebugSphere(GetWorld(), Body->GetCOMPosition(), 100.f, 32, FColor::Yellow);
+		
+		// DrawDebugSphere(GetWorld(), Boat->GetCenterOfMass(), 100.f, 32, FColor::Yellow);
 		
 		for(int i = 1; i < TriangleBuffer.Num(); i=i+3){
 			float x_sum = Vertices[TriangleBuffer[i-1]].X + Vertices[TriangleBuffer[i]].X + Vertices[TriangleBuffer[i+1]].X;
@@ -116,7 +119,21 @@ void ABoatActor::Tick(float DeltaTime)
 			FVector center = {x_sum/3.0f, y_sum/3.0f, z_sum/3.0f};
 			// if(Vertices[TriangleBuffer[i-1]].Z < 0)
 			// if(Vertices[TriangleBuffer[i-1]].Z < 0)
-			if(center.Z < 0)
+
+			
+			float WorldTime = this->GetWorld()->GetTimeSeconds();
+			FVector2D WaveDirection = {1.0f, 0.0f};
+			WaveDirection.Normalize();
+			FVector2D BoatPosXY = {center.X, center.Y};
+			float TestHeight = FVector2D::DotProduct(BoatPosXY, WaveDirection);
+			float WaveHeight = 150.0f*sin(0.01*(PI*2/48)*TestHeight + WorldTime);
+
+			if(first_run)
+			{
+				// UE_LOG(LogTemp, Warning, TEXT("Center: %f - Height: %f"), center.Z, WaveHeight);
+			}
+			
+			if(center.Z <= WaveHeight)
 			{
 				FVector p1 = Vertices[TriangleBuffer[i-1]];
 				FVector p2 = Vertices[TriangleBuffer[i]];
@@ -134,8 +151,8 @@ void ABoatActor::Tick(float DeltaTime)
 				float a = FVector::Distance(p2, p1);
 				float b = FVector::Distance(p3, p1);
 				float Dot_Product = FVector::DotProduct(p2-p1, p3-p1) / (a*b);
-				float w = acos(Dot_Product);  //TODO(Sondre): This can return -nand(ind), Has to be verified that it calculates the correct angle between a and b
-
+				float w = acos(Dot_Product);
+				
 				if(w > 0)
 				{
 					//UE_LOG(LogTemp, Warning, TEXT("w: %f, dot: %f"), w, Dot_Product);
@@ -151,7 +168,8 @@ void ABoatActor::Tick(float DeltaTime)
 					//UE_LOG(LogTemp, Warning, TEXT("Area[%i]: %f[cm^2]"), i, AreaTriangle);
 				}
 				
-				FVector Force =  1027.0f * center.Z*0.01f * AreaTriangle * normal*0.01f;
+				// FVector Force =  1027.0f * (center.Z + WaveHeight)*0.01f * AreaTriangle * normal*0.01f;
+				FVector Force =  1027.0f * (center.Z - WaveHeight)*0.01f * AreaTriangle * normal*0.01f;
 				Force.X = 0.0f;
 				Force.Y = 0.0f;
 				// UE_LOG(LogTemp, Warning, TEXT("Area[%i]: %f[cm^2]"), i, AreaTriangle);
