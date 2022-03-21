@@ -28,18 +28,18 @@ void AWaveInterractor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FVector2D direction = {1.0, 1.0};
+	FVector2D direction = {1.0, 0.0};
 	FVector world_position = box_mesh->GetComponentLocation();
 	FVector2D world_pos = {world_position.X, world_position.Y};
 	direction.Normalize();
 	float time = this->GetWorld()->GetTimeSeconds();
 	
-	float height =30*sin( 0.01*((PI*2)/6)*(world_pos.X*direction.X + world_pos.Y*direction.Y) + time);
+	float height =30*sin( 0.01*((PI*2)/48)*(world_pos.X*direction.X + world_pos.Y*direction.Y) + time);
 	// box_mesh->SetRelativeLocation({0.0f,0.0f,height});
 	FVector position = box_mesh->GetComponentLocation();
 	FVector velocity = box_mesh->GetPhysicsLinearVelocity();
 	if(position.Z <= height){
-		float f_b = 2.5f * 9.81f * 1.0f * (height - position.Z);
+		float f_b = 2.5f * 9.81f * 1.0f * (position.Z - height);
 		float f_d = 1.0f * 1.0f * 0.01f * velocity.Z * velocity.Z / 2.0f;
 		if(velocity.Z < 0.0f)
 		{
