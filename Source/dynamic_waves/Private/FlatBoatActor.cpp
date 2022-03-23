@@ -1,28 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BoatActor.h"
+#include "FlatBoatActor.h"
 
-#include "ThirdParty/openexr/Deploy/OpenEXR-2.3.0/OpenEXR/include/ImathMath.h"
+#include "AITypes.h"
 
 // Sets default values
-ABoatActor::ABoatActor()
+AFlatBoatActor::AFlatBoatActor()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	uint8_t select = 1;
-
-	
-	
-	
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> BoatMesh(TEXT("/Game/Meshes/SM_Boat.SM_Boat"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> SimMesh(TEXT("/Game/Meshes/SM_Boat_Tri.SM_Boat_Tri"));	
+	//static ConstructorHelpers::FObjectFinder<UStaticMesh> BoatMesh(TEXT("/Game/Meshes/SM_Boat.SM_Boat"));
+	//static ConstructorHelpers::FObjectFinder<UStaticMesh> SimMesh(TEXT("/Game/Meshes/SM_Boat_Tri.SM_Boat_Tri"));	
 
 
 
-	// static ConstructorHelpers::FObjectFinder<UStaticMesh> BoatMesh(TEXT("/Game/Meshes/SM_Box.SM_Box"));
-	// static ConstructorHelpers::FObjectFinder<UStaticMesh> SimMesh(TEXT("/Game/Meshes/SM_Box.SM_Box"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BoatMesh(TEXT("/Game/Meshes/SM_Box.SM_Box"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> SimMesh(TEXT("/Game/Meshes/SM_Box.SM_Box"));
 
 
 	// static ConstructorHelpers::FObjectFinder<UStaticMesh> BoatMesh(TEXT("/Game/Meshes/box.box"));
@@ -43,21 +38,20 @@ ABoatActor::ABoatActor()
 	BoatSim->SetStaticMesh(SimMesh.Object);
 	BoatSim->ToggleVisibility(false);  // Static mesh follows the Boat, but it cannot be used for positions?
 	BoatSim->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
+
 }
 
 // Called when the game starts or when spawned
-void ABoatActor::BeginPlay()
+void AFlatBoatActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
 // Called every frame
-void ABoatActor::Tick(float DeltaTime)
+void AFlatBoatActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
 	Vertices.Reset();
 
 	if(BoatSim->GetStaticMesh()->GetRenderData()->LODResources.Num() > 0)
@@ -104,7 +98,7 @@ void ABoatActor::Tick(float DeltaTime)
 			// DrawDebugPoint(this->GetWorld(), Vertices[2], 15.0f, FColor(255, 255, 0),false, 0.0f);	
 			// DrawDebugPoint(this->GetWorld(), Vertices[3], 15.0f, FColor(0, 0, 255),false, 0.0f);
 			
-			// DrawDebugPoint(this->GetWorld(), Vertices[i], 15.0f, FColor(255, 0, 0),false, 0.0f);
+			DrawDebugPoint(this->GetWorld(), Vertices[i], 15.0f, FColor(255, 0, 0),false, 0.0f);
 		}
 
 		// FBodyInstance *Body = Boat->GetBodyInstance();
@@ -133,7 +127,7 @@ void ABoatActor::Tick(float DeltaTime)
 				// UE_LOG(LogTemp, Warning, TEXT("Center: %f - Height: %f"), center.Z, WaveHeight);
 			}
 			
-			if(center.Z <= WaveHeight)
+			if(center.Z <= 0)
 			{
 				FVector p1 = Vertices[TriangleBuffer[i-1]];
 				FVector p2 = Vertices[TriangleBuffer[i]];
@@ -143,10 +137,10 @@ void ABoatActor::Tick(float DeltaTime)
 				{
 					DrawDebugLine(this->GetWorld(), center, normal, FColor{0,0,255}, false, 0.0f, 0, 2.0f);
 				}
-				// DrawDebugPoint(this->GetWorld(), center, 15.0f, FColor(0, 0, 0),false, 0.0f);
-				// DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i-1]], Vertices[TriangleBuffer[i]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
-				// DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i]], Vertices[TriangleBuffer[i+1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
-				// DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i+1]], Vertices[TriangleBuffer[i-1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
+				DrawDebugPoint(this->GetWorld(), center, 15.0f, FColor(0, 0, 0),false, 0.0f);
+				DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i-1]], Vertices[TriangleBuffer[i]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
+				DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i]], Vertices[TriangleBuffer[i+1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
+				DrawDebugLine(this->GetWorld(), Vertices[TriangleBuffer[i+1]], Vertices[TriangleBuffer[i-1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
 
 				float a = FVector::Distance(p2, p1);
 				float b = FVector::Distance(p3, p1);
@@ -169,13 +163,17 @@ void ABoatActor::Tick(float DeltaTime)
 				}
 				
 				
-				FVector Force =  1027.0f * (center.Z - WaveHeight)*0.03f * AreaTriangle * normal*0.01f;
+				FVector Force =  1027.0f * (center.Z)*0.01f * AreaTriangle * normal*0.01f;
 				
 				Force.X = 0.0f;
 				Force.Y = 0.0f;
 				// UE_LOG(LogTemp, Warning, TEXT("Area[%i]: %f[cm^2]"), i, AreaTriangle);
 				// Boat->AddForceAtLocation({0.0f, 0.0f, Force.Z}, center, NAME_None);
-				Boat->AddForceAtLocation(Force, center, NAME_None);
+				if(EnableForces)
+				{
+					Boat->AddForceAtLocation(Force, center, NAME_None);	
+				}
+				
 				// Boat->AddForceAtLocation({0.0f, 0.0f, 400.0f}, center, NAME_None);
 				
 				FVector drag = {0.0f, 0.0f, 0.0f};
@@ -200,7 +198,11 @@ void ABoatActor::Tick(float DeltaTime)
 				}
 		
 				drag.Z = R;
-				Boat->AddForceAtLocation(drag, center, NAME_None);
+				if(EnableForces)
+				{
+					Boat->AddForceAtLocation(drag, center, NAME_None);	
+				}
+				
 			}
 		}
 
@@ -211,5 +213,4 @@ void ABoatActor::Tick(float DeltaTime)
 		}
 	}
 }
-
 
