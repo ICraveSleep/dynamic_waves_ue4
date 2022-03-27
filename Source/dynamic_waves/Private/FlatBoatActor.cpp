@@ -46,6 +46,7 @@ void AFlatBoatActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	
 }
 
 // Called every frame
