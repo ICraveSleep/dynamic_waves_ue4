@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DrawDebugHelpers.h"
+
 
 /**
  * 
@@ -10,15 +12,20 @@
 class DYNAMIC_WAVES_API FMeshHandler
 {
 public:
-	FMeshHandler(uint32_t VertexSizeIn, uint32_t TriangleSizeIn);
+	FMeshHandler(uint32_t VertexSizeIn, uint32_t TriangleSizeIn, UWorld* UWorld);
+	// FMeshHandler(uint32_t VertexSizeIn, uint32_t TriangleSizeIn, const ADynamicWaves* ActorComponentPtr);
 	
 	~FMeshHandler();
 	
 	void PrintMeshInfo();
+	void DrawVertices();
+	void UpdateMesh(const TArray<FVector>& MeshVertices, const FIndexArrayView& TriangleArrayIndex);
 private:
-	
+
 	TArray<FVector> Vertices;
 	TArray<int32> Triangles;
-	uint32_t VertexSize;
-	uint32_t TriangleSize;
+	int32_t VertexSize;
+	int32_t TriangleSize;
+	FIndexArrayView TrianglesIndexes;
+	UWorld* WorldPointer;
 };

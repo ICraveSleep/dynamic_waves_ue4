@@ -42,4 +42,8 @@ public:
 
 private:
 	FMeshHandler* MeshHandler;
+	FPositionVertexBuffer* VertexBuffer;
+	FIndexArrayView TriangleBuffer;
+	TArray<FVector> Vertices;
+	TArray<int32> Triangles;
 };

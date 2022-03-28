@@ -27,8 +27,11 @@ ADynamicWaves::ADynamicWaves()
 	BoatMesh->SetMaterial(0, CubeMaterial.Object);
 	BoatMesh->SetSimulatePhysics(true);
 	BoatMesh->SetMassOverrideInKg(NAME_None, 10.0f);
+	// BoatMesh->ToggleVisibility(false);  // Static mesh follows the Boat, but it cannot be used for positions?
+	// BoatMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	BoatSimulationMesh->SetStaticMesh(CubeMesh.Object);
+	BoatSimulationMesh->SetSimulatePhysics(false);
 	BoatSimulationMesh->ToggleVisibility(false);  // Static mesh follows the Boat, but it cannot be used for positions?
 	BoatSimulationMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
@@ -39,18 +42,11 @@ void ADynamicWaves::BeginPlay()
 	Super::BeginPlay();
 	if(BoatSimulationMesh->GetStaticMesh()->GetRenderData()->LODResources.Num() > 0)
 	{
-		// SetActorTransform(Boat->GetRelativeTransform(), false, nullptr); // TODO(Sondre): Why must the actor be updated to get correct rotation?????
-		//UE_LOG(LogTemp, Warning, TEXT("Actor location: {%f, %f, %f}"), GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z)
-		FPositionVertexBuffer* VertexBuffer = &BoatSimulationMesh->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer;
-		const FIndexArrayView TriangleBuffer = BoatSimulationMesh->GetStaticMesh()->GetRenderData()->LODResources[0].IndexBuffer.GetArrayView();
-		MeshHandler = new FMeshHandler(VertexBuffer->GetNumVertices(), TriangleBuffer.Num());	
-		// if (VertexBuffer){
-		// 	const int32 VertexCount = VertexBuffer->GetNumVertices();
-		// 	for(int32 VertexIndex = 0; VertexIndex < VertexCount; VertexIndex++){
-		// 		// const FVector WorldSpaceVertexLocation = Boat->GetRelativeLocation() + GetTransform().TransformVector(VertexBuffer->VertexPosition(VertexIndex));
-		// 		const FVector WorldSpaceVertexLocation = GetActorLocation() + GetTransform().TransformVector(VertexBuffer->VertexPosition(VertexIndex));
-		// 	}
-		// }
+		VertexBuffer = &BoatSimulationMesh->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer;
+		TriangleBuffer = BoatSimulationMesh->GetStaticMesh()->GetRenderData()->LODResources[0].IndexBuffer.GetArrayView();
+		MeshHandler = new FMeshHandler(VertexBuffer->GetNumVertices(), TriangleBuffer.Num(), this->GetWorld());
+		Vertices.SetNum(VertexBuffer->GetNumVertices(), false);
+		Triangles.SetNum(TriangleBuffer.Num(), false);
 	}
 	else
 	{
@@ -63,7 +59,20 @@ void ADynamicWaves::BeginPlay()
 void ADynamicWaves::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	MeshHandler->PrintMeshInfo();
+	// MeshHandler->PrintMeshInfo();
+	
+	VertexBuffer = &BoatSimulationMesh->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer;
+	TriangleBuffer = BoatSimulationMesh->GetStaticMesh()->GetRenderData()->LODResources[0].IndexBuffer.GetArrayView();
+	if (VertexBuffer){
+		const int32 VertexCount = VertexBuffer->GetNumVertices();
+		SetActorTransform(BoatMesh->GetRelativeTransform(), false, nullptr); // TODO(Sondre): Why must the actor be updated to get correct rotation????? and why must it be the boat??? Is it physics related?
+		for(int32 VertexIndex = 0; VertexIndex < VertexCount; VertexIndex++){
+			const FVector WorldSpaceVertexLocation = BoatMesh->GetRelativeLocation() + GetTransform().TransformVector(VertexBuffer->VertexPosition(VertexIndex));
+			// const FVector WorldSpaceVertexLocation = GetActorLocation() + GetTransform().TransformVector(VertexBuffer->VertexPosition(VertexIndex));
+			Vertices[VertexIndex] = WorldSpaceVertexLocation;
+		}
+		MeshHandler->UpdateMesh(Vertices, TriangleBuffer);
+	}
 }
 
 

@@ -76,7 +76,7 @@ void AFlatBoatActor::Tick(float DeltaTime)
 					//	UE_LOG(LogTemp, Warning, TEXT("VertexCount[%i] - TriangleIndex[%i]"), VertexIndex, TriangleBuffer[VertexIndex]);
 					}
 				}
-
+				
 				Vertices.Add(WorldSpaceVertexLocation);
 				
 			}
