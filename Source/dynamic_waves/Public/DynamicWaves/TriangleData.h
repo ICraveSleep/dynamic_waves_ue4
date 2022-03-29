@@ -7,11 +7,24 @@
 /**
  * 
  */
-class DYNAMIC_WAVES_API TriangleData
+class DYNAMIC_WAVES_API FTriangleData
 {
 public:
-	TriangleData(const FVector& A, const FVector& B, const FVector& C);
-	~TriangleData();
+	FTriangleData();
+	
+	~FTriangleData();
+
+	void SetPointA(const FVector &Point);
+	void SetPointB(const FVector &Point);
+	void SetPointC(const FVector &Point);
+	
+	FVector GetPointA() const;
+	FVector GetPointB() const;
+	FVector GetPointC() const;
+
+	float GetArea() const;
+	FVector GetNormal() const;
+	FVector GetCenter() const;
 
 private:
 	FVector PointA;
