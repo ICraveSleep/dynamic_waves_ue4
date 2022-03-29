@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "TriangleData.h"
+#include "VertexData.h"
 #include "DrawDebugHelpers.h"
 
 
@@ -22,10 +24,12 @@ public:
 	void UpdateMesh(const TArray<FVector>& MeshVertices, const FIndexArrayView& TriangleArrayIndex);
 private:
 
+	float GetWaveHeight(float x, float y);
 	TArray<FVector> Vertices;
 	TArray<int32> Triangles;
 	int32_t VertexSize;
 	int32_t TriangleSize;
 	FIndexArrayView TrianglesIndexes;
 	UWorld* WorldPointer;
+	
 };
