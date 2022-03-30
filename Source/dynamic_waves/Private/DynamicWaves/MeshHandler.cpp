@@ -7,10 +7,11 @@
 // FMeshHandler::FMeshHandler(uint32_t VertexSizeIn, uint32_t TriangleSizeIn, const ADynamicWaves* ActorComponentPtr) : ActorPointer(ActorComponentPtr)
 FMeshHandler::FMeshHandler(uint32_t VertexSizeIn, uint32_t TriangleSizeIn, UWorld* UWorld) : WorldPointer(UWorld)
 {
-	TriangleSize = TriangleSizeIn;
-	VertexSize = VertexSizeIn;
+	NumberOfTriangles = TriangleSizeIn;
+	NumberOfVertices = VertexSizeIn;
 	const FVector Initialization = {0.0f,0.0f,0.0f};
-	Vertices.SetNum(VertexSize);
+	Vertices.SetNum(NumberOfVertices);
+	VerticesSurfaceDistance.SetNum(NumberOfVertices);
 	UE_LOG(LogTemp, Warning, TEXT("Init size: %i"), Vertices.Num());
 	
 }
@@ -23,7 +24,7 @@ void FMeshHandler::PrintMeshInfo()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Yellow,
 	                                 FString::Printf(
-		                                 TEXT("VertexSize: %i, TriangleSize: %i"), VertexSize, TriangleSize));
+		                                 TEXT("VertexSize: %i, TriangleSize: %i"), NumberOfVertices, NumberOfTriangles));
 	UE_LOG(LogTemp, Warning, TEXT("Hello"));
 }
 
@@ -55,10 +56,15 @@ void FMeshHandler::UpdateMesh(const TArray<FVector>& MeshVertices, const FIndexA
 {
 	Vertices = MeshVertices;
 	TrianglesIndexes = TriangleArrayIndex;
-	int32 test = TrianglesIndexes[0];
-	for(int32_t i = 0; i < MeshVertices.Num(); i++){
-		DrawDebugPoint(WorldPointer->GetWorld(), Vertices[i], 15.0f, FColor(255, 0, 0),false, 0.0f);
+	float IterationTime = WorldPointer->GetWorld()->TimeSeconds;
+	
+	float WaveHeightAtLocation;
+	for(int32_t i = 0; i < NumberOfVertices; i++){
+		WaveHeightAtLocation = GetWaveHeight(Vertices[i].X, Vertices[i].Y);
+		WaveHeightAtLocation = Vertices[i].Z - WaveHeightAtLocation;  // The sign of this height indicates if the vertex is above(+) or below(-) water 
+		VerticesSurfaceDistance[i] = WaveHeightAtLocation;
 	}
+
 	
 	for(int i = 1; i < TrianglesIndexes.Num(); i=i+3){
         float x_sum = Vertices[TrianglesIndexes[i-1]].X + Vertices[TrianglesIndexes[i]].X + Vertices[TrianglesIndexes[i+1]].X;
@@ -91,5 +97,7 @@ float FMeshHandler::GetWaveHeight(float x, float y)
 	FVector2D BoatPosXY = {x, y};
 	float PlaneLocation = FVector2D::DotProduct(BoatPosXY, WaveDirection);
 	float WaveHeight = 150.0f*sin(0.01*(PI*2/48)*PlaneLocation + WorldTime);
-	return WaveHeight;
+	// return WaveHeight;
+
+	return 0.0f; // TODO(Sondre): Currently using flat water
 }

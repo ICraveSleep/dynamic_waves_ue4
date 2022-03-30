@@ -27,8 +27,9 @@ private:
 	float GetWaveHeight(float x, float y);
 	TArray<FVector> Vertices;
 	TArray<int32> Triangles;
-	int32_t VertexSize;
-	int32_t TriangleSize;
+	TArray<int32_t> VerticesSurfaceDistance;
+	int32_t NumberOfVertices;
+	int32_t NumberOfTriangles;
 	FIndexArrayView TrianglesIndexes;
 	UWorld* WorldPointer;
 	
