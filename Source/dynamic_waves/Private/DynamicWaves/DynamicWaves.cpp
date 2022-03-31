@@ -44,7 +44,7 @@ void ADynamicWaves::BeginPlay()
 	{
 		VertexBuffer = &BoatSimulationMesh->GetStaticMesh()->GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer;
 		TriangleBuffer = BoatSimulationMesh->GetStaticMesh()->GetRenderData()->LODResources[0].IndexBuffer.GetArrayView();
-		MeshHandler = new FMeshHandler(VertexBuffer->GetNumVertices(), TriangleBuffer.Num(), this->GetWorld());
+		MeshHandler = new FMeshHandler(TriangleBuffer, VertexBuffer->GetNumVertices(), TriangleBuffer.Num(), this->GetWorld());
 		Vertices.SetNum(VertexBuffer->GetNumVertices(), false);
 		Triangles.SetNum(TriangleBuffer.Num(), false);
 	}
@@ -71,7 +71,7 @@ void ADynamicWaves::Tick(float DeltaTime)
 			// const FVector WorldSpaceVertexLocation = GetActorLocation() + GetTransform().TransformVector(VertexBuffer->VertexPosition(VertexIndex));
 			Vertices[VertexIndex] = WorldSpaceVertexLocation;
 		}
-		MeshHandler->UpdateMesh(Vertices, TriangleBuffer);
+		MeshHandler->UpdateMesh(Vertices);
 	}
 }
 

@@ -14,23 +14,26 @@
 class DYNAMIC_WAVES_API FMeshHandler
 {
 public:
-	FMeshHandler(uint32_t VertexSizeIn, uint32_t TriangleSizeIn, UWorld* UWorld);
+	FMeshHandler(FIndexArrayView IndexArrayView, uint32_t VertexSizeIn, uint32_t TriangleSizeIn, UWorld* UWorld);
 	// FMeshHandler(uint32_t VertexSizeIn, uint32_t TriangleSizeIn, const ADynamicWaves* ActorComponentPtr);
 	
 	~FMeshHandler();
 	
 	void PrintMeshInfo();
 	void DrawVertices();
-	void UpdateMesh(const TArray<FVector>& MeshVertices, const FIndexArrayView& TriangleArrayIndex);
+	void UpdateMesh(const TArray<FVector>& MeshVertices);
 private:
 
+	void AddUnderWaterTriangles();
 	float GetWaveHeight(float x, float y);
 	TArray<FVector> Vertices;
+	TArray<FTriangleData> UnderWaterTriangles;
+	uint16_t UnderWaterTrianglesIndex;
 	TArray<int32> Triangles;
 	TArray<int32_t> VerticesSurfaceDistance;
 	int32_t NumberOfVertices;
 	int32_t NumberOfTriangles;
-	FIndexArrayView TrianglesIndexes;
+	FIndexArrayView TriangleIndexes;
 	UWorld* WorldPointer;
 	
 };

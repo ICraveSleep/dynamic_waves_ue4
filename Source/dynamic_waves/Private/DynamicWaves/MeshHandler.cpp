@@ -5,15 +5,16 @@
 
 
 // FMeshHandler::FMeshHandler(uint32_t VertexSizeIn, uint32_t TriangleSizeIn, const ADynamicWaves* ActorComponentPtr) : ActorPointer(ActorComponentPtr)
-FMeshHandler::FMeshHandler(uint32_t VertexSizeIn, uint32_t TriangleSizeIn, UWorld* UWorld) : WorldPointer(UWorld)
+FMeshHandler::FMeshHandler(FIndexArrayView IndexArrayView, uint32_t VertexSizeIn, uint32_t TriangleSizeIn, UWorld* UWorld) : WorldPointer(UWorld)
 {
+	TriangleIndexes = IndexArrayView;
 	NumberOfTriangles = TriangleSizeIn;
 	NumberOfVertices = VertexSizeIn;
-	const FVector Initialization = {0.0f,0.0f,0.0f};
+	UnderWaterTrianglesIndex = 0;
 	Vertices.SetNum(NumberOfVertices);
+	UnderWaterTriangles.SetNum(NumberOfVertices*3);
 	VerticesSurfaceDistance.SetNum(NumberOfVertices);
 	UE_LOG(LogTemp, Warning, TEXT("Init size: %i"), Vertices.Num());
-	
 }
 
 FMeshHandler::~FMeshHandler()
@@ -30,32 +31,32 @@ void FMeshHandler::PrintMeshInfo()
 
 void FMeshHandler::DrawVertices()
 {
-	for(int i = 1; i < TrianglesIndexes.Num(); i=i+3){
-		float x_sum = Vertices[TrianglesIndexes[i-1]].X + Vertices[TrianglesIndexes[i]].X + Vertices[TrianglesIndexes[i+1]].X;
-		float y_sum = Vertices[TrianglesIndexes[i-1]].Y + Vertices[TrianglesIndexes[i]].Y + Vertices[TrianglesIndexes[i+1]].Y;
-		float z_sum = Vertices[TrianglesIndexes[i-1]].Z + Vertices[TrianglesIndexes[i]].Z + Vertices[TrianglesIndexes[i+1]].Z;
+	for(int i = 1; i < TriangleIndexes.Num(); i=i+3){
+		float x_sum = Vertices[TriangleIndexes[i-1]].X + Vertices[TriangleIndexes[i]].X + Vertices[TriangleIndexes[i+1]].X;
+		float y_sum = Vertices[TriangleIndexes[i-1]].Y + Vertices[TriangleIndexes[i]].Y + Vertices[TriangleIndexes[i+1]].Y;
+		float z_sum = Vertices[TriangleIndexes[i-1]].Z + Vertices[TriangleIndexes[i]].Z + Vertices[TriangleIndexes[i+1]].Z;
 		FVector center = {x_sum/3.0f, y_sum/3.0f, z_sum/3.0f};
 		
-		FVector p1 = Vertices[TrianglesIndexes[i-1]];
-		FVector p2 = Vertices[TrianglesIndexes[i]];
-		FVector p3 = Vertices[TrianglesIndexes[i+1]];
+		FVector p1 = Vertices[TriangleIndexes[i-1]];
+		FVector p2 = Vertices[TriangleIndexes[i]];
+		FVector p3 = Vertices[TriangleIndexes[i+1]];
 		FVector normal = FVector::CrossProduct(p3-p1, p2-p1);
 		// if(DrawNormals)
 		// {
 		// DrawDebugLine(WorldPointer, center, center + normal/normal.Size() * 50.0f, FColor{0,0,255}, false, 0.0f, 0, 2.0f);
 		// }
 		DrawDebugPoint(WorldPointer, center, 15.0f, FColor(0, 0, 0),false, 0.0f);
-		DrawDebugLine(WorldPointer, Vertices[TrianglesIndexes[i-1]], Vertices[TrianglesIndexes[i]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
-		DrawDebugLine(WorldPointer, Vertices[TrianglesIndexes[i]], Vertices[TrianglesIndexes[i+1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
-		DrawDebugLine(WorldPointer, Vertices[TrianglesIndexes[i+1]], Vertices[TrianglesIndexes[i-1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
+		DrawDebugLine(WorldPointer, Vertices[TriangleIndexes[i-1]], Vertices[TriangleIndexes[i]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
+		DrawDebugLine(WorldPointer, Vertices[TriangleIndexes[i]], Vertices[TriangleIndexes[i+1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
+		DrawDebugLine(WorldPointer, Vertices[TriangleIndexes[i+1]], Vertices[TriangleIndexes[i-1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
 	}
 }
 		
 
-void FMeshHandler::UpdateMesh(const TArray<FVector>& MeshVertices, const FIndexArrayView& TriangleArrayIndex)
+void FMeshHandler::UpdateMesh(const TArray<FVector>& MeshVertices)
 {
 	Vertices = MeshVertices;
-	TrianglesIndexes = TriangleArrayIndex;
+	// TriangleIndexes = TriangleArrayIndex;
 	float IterationTime = WorldPointer->GetWorld()->TimeSeconds;
 	
 	float WaveHeightAtLocation;
@@ -65,29 +66,68 @@ void FMeshHandler::UpdateMesh(const TArray<FVector>& MeshVertices, const FIndexA
 		VerticesSurfaceDistance[i] = WaveHeightAtLocation;
 	}
 
+	AddUnderWaterTriangles();
 	
-	for(int i = 1; i < TrianglesIndexes.Num(); i=i+3){
-        float x_sum = Vertices[TrianglesIndexes[i-1]].X + Vertices[TrianglesIndexes[i]].X + Vertices[TrianglesIndexes[i+1]].X;
-        float y_sum = Vertices[TrianglesIndexes[i-1]].Y + Vertices[TrianglesIndexes[i]].Y + Vertices[TrianglesIndexes[i+1]].Y;
-        float z_sum = Vertices[TrianglesIndexes[i-1]].Z + Vertices[TrianglesIndexes[i]].Z + Vertices[TrianglesIndexes[i+1]].Z;
+	for(int i = 0; i < TriangleIndexes.Num(); i=i+3){
+        float x_sum = Vertices[TriangleIndexes[i]].X + Vertices[TriangleIndexes[i+1]].X + Vertices[TriangleIndexes[i+2]].X;
+        float y_sum = Vertices[TriangleIndexes[i]].Y + Vertices[TriangleIndexes[i+1]].Y + Vertices[TriangleIndexes[i+2]].Y;
+        float z_sum = Vertices[TriangleIndexes[i]].Z + Vertices[TriangleIndexes[i+1]].Z + Vertices[TriangleIndexes[i+2]].Z;
         FVector center = {x_sum/3.0f, y_sum/3.0f, z_sum/3.0f};
 		
-        FVector p1 = Vertices[TrianglesIndexes[i-1]];
-        FVector p2 = Vertices[TrianglesIndexes[i]];
-        FVector p3 = Vertices[TrianglesIndexes[i+1]];
+        FVector p1 = Vertices[TriangleIndexes[i]];
+        FVector p2 = Vertices[TriangleIndexes[i+1]];
+        FVector p3 = Vertices[TriangleIndexes[i+2]];
         FVector normal = FVector::CrossProduct(p3-p1, p2-p1);
         // if(DrawNormals)
         // {
         // DrawDebugLine(WorldPointer, center, center + normal/normal.Size() * 50.0f, FColor{0,0,255}, false, 0.0f, 0, 2.0f);
         // }
         DrawDebugPoint(WorldPointer, center, 15.0f, FColor(0, 0, 0),false, 0.0f);
-        DrawDebugLine(WorldPointer, Vertices[TrianglesIndexes[i-1]], Vertices[TrianglesIndexes[i]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
-        DrawDebugLine(WorldPointer, Vertices[TrianglesIndexes[i]], Vertices[TrianglesIndexes[i+1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
-        DrawDebugLine(WorldPointer, Vertices[TrianglesIndexes[i+1]], Vertices[TrianglesIndexes[i-1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
+        DrawDebugLine(WorldPointer, Vertices[TriangleIndexes[i]], Vertices[TriangleIndexes[i+1]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
+        DrawDebugLine(WorldPointer, Vertices[TriangleIndexes[i+1]], Vertices[TriangleIndexes[i+2]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
+        DrawDebugLine(WorldPointer, Vertices[TriangleIndexes[i+2]], Vertices[TriangleIndexes[i]], FColor{255,255,255}, false, 0.0f, 0, 2.0f);
     }
-
-	UE_LOG(LogTemp, Warning, TEXT("USize: %i LSize: %i"), MeshVertices.Num(), Vertices.Num());
 }
+
+void FMeshHandler::AddUnderWaterTriangles()
+{
+	UnderWaterTrianglesIndex = 0;
+	TArray<FVertexData> VertexTriangle = {
+		{0.0f, 0, FVector(0.0f, 0.0f, 0.0f)},
+		{0.0f, 0, FVector(0.0f, 0.0f, 0.0f)},
+		{0.0f, 0, FVector(0.0f, 0.0f, 0.0f)}};
+
+	for(int i = 0; i < TriangleIndexes.Num(); i=i+3)
+	{
+		VertexTriangle[0].Index = 0;
+		VertexTriangle[0].SurfaceDistance = VerticesSurfaceDistance[TriangleIndexes[i]];
+		VertexTriangle[0].WorldVertexLocation = Vertices[TriangleIndexes[i]];
+
+		VertexTriangle[1].Index = 1;
+		VertexTriangle[1].SurfaceDistance = VerticesSurfaceDistance[TriangleIndexes[i+1]];
+		VertexTriangle[1].WorldVertexLocation = Vertices[TriangleIndexes[i+1]];
+
+		VertexTriangle[2].Index = 2;
+		VertexTriangle[2].SurfaceDistance = VerticesSurfaceDistance[TriangleIndexes[i+2]];
+		VertexTriangle[2].WorldVertexLocation = Vertices[TriangleIndexes[i+2]];
+
+		//Continue to next triangle if all vertices are above water
+		if(VertexTriangle[0].SurfaceDistance >= 0.0f && VertexTriangle[1].SurfaceDistance >= 0.0f && VertexTriangle[2].SurfaceDistance >= 0.0f)
+		{
+			continue;
+		}
+
+		//If all vertices are below water store it directly
+		if(VertexTriangle[0].SurfaceDistance < 0.0f && VertexTriangle[1].SurfaceDistance < 0.0f && VertexTriangle[2].SurfaceDistance < 0.0f)
+		{
+			UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(VertexTriangle[0].WorldVertexLocation);
+			UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(VertexTriangle[1].WorldVertexLocation);
+			UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(VertexTriangle[2].WorldVertexLocation);
+			++UnderWaterTrianglesIndex;
+		}
+	}
+}
+
 
 float FMeshHandler::GetWaveHeight(float x, float y)
 {
