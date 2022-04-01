@@ -21,16 +21,18 @@ public:
 	
 	void PrintMeshInfo();
 	void DrawVertices();
-	void UpdateMesh(const TArray<FVector>& MeshVertices);
+	void UpdateMeshTriangles(const TArray<FVector>& MeshVertices);
 private:
 
 	void AddUnderWaterTriangles();
+	void DrawTriangles();
+	TArray<FVertexData> SortVerticesByDistance(const TArray<FVertexData>& VerticesData);
 	float GetWaveHeight(float x, float y);
 	TArray<FVector> Vertices;
 	TArray<FTriangleData> UnderWaterTriangles;
 	uint16_t UnderWaterTrianglesIndex;
 	TArray<int32> Triangles;
-	TArray<int32_t> VerticesSurfaceDistance;
+	TArray<float> VerticesSurfaceDistance;
 	int32_t NumberOfVertices;
 	int32_t NumberOfTriangles;
 	FIndexArrayView TriangleIndexes;

@@ -71,7 +71,7 @@ void ADynamicWaves::Tick(float DeltaTime)
 			// const FVector WorldSpaceVertexLocation = GetActorLocation() + GetTransform().TransformVector(VertexBuffer->VertexPosition(VertexIndex));
 			Vertices[VertexIndex] = WorldSpaceVertexLocation;
 		}
-		MeshHandler->UpdateMesh(Vertices);
+		MeshHandler->UpdateMeshTriangles(Vertices);
 	}
 }
 
