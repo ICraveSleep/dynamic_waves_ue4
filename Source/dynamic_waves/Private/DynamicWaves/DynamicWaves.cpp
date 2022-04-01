@@ -27,12 +27,12 @@ ADynamicWaves::ADynamicWaves()
 	BoatMesh->SetMaterial(0, CubeMaterial.Object);
 	BoatMesh->SetSimulatePhysics(true);
 	BoatMesh->SetMassOverrideInKg(NAME_None, 10.0f);
-	// BoatMesh->ToggleVisibility(false);  // Static mesh follows the Boat, but it cannot be used for positions?
+	// BoatMesh->ToggleVisibility(false);
 	// BoatMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	BoatSimulationMesh->SetStaticMesh(CubeMesh.Object);
 	BoatSimulationMesh->SetSimulatePhysics(false);
-	BoatSimulationMesh->ToggleVisibility(false);  // Static mesh follows the Boat, but it cannot be used for positions?
+	BoatSimulationMesh->ToggleVisibility(false);  // TODO(Sondre): Static mesh follows the Boat, but it cannot be used for positions?
 	BoatSimulationMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 

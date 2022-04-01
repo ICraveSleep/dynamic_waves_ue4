@@ -95,6 +95,7 @@ void FMeshHandler::AddUnderWaterTriangles()
 		//UE_LOG(LogTemp, Warning, TEXT("Vertices: {%f, %f, %f}"), VertexTriangle[0].SurfaceDistance, VertexTriangle[1].SurfaceDistance, VertexTriangle[2].SurfaceDistance)
 		//UE_LOG(LogTemp, Warning, TEXT("Vertices: {%f, %f, %f}"), VerticesSurfaceDistance[TriangleIndexes[i]], VerticesSurfaceDistance[TriangleIndexes[i+1]], VerticesSurfaceDistance[TriangleIndexes[i+2]]);
 
+		// SurfaceDistance is checked against 0.0f, since 0.0f is at the surface of the wave, i.e the wave height
 		//Continue to next triangle if all vertices are above water
 		if(VertexTriangle[0].SurfaceDistance >= 0.0f && VertexTriangle[1].SurfaceDistance >= 0.0f && VertexTriangle[2].SurfaceDistance >= 0.0f)
 		{
@@ -113,8 +114,21 @@ void FMeshHandler::AddUnderWaterTriangles()
 		{
 			// Sort the vertexes surface distances to easier check how many are under water
 			VertexTriangle = SortVerticesByDistance(VertexTriangle);
-			
-			
+
+			//Add One triangle when One Vertex is under water
+			if(VertexTriangle[0].SurfaceDistance > 0.0f && VertexTriangle[1].SurfaceDistance > 0.0f && VertexTriangle[2].SurfaceDistance < 0.0f)
+			{
+				
+			}
+			//Add Two triangles when Two Vertices are under water
+			else if(VertexTriangle[0].SurfaceDistance > 0.0f && VertexTriangle[1].SurfaceDistance < 0.0f && VertexTriangle[2].SurfaceDistance < 0.0f)
+			{
+				
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("One to two vertices check fell through - check: void FMeshHandler::AddUnderWaterTriangles()"))	
+			}
 		}
 	}
 }
