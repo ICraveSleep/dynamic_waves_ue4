@@ -26,6 +26,9 @@ private:
 
 	void AddUnderWaterTriangles();
 	void DrawTriangles();
+	
+	void AddOneSubTriangle(const TArray<FVertexData>& VerticesData);
+	void AddTwoSubTriangles(const TArray<FVertexData>& VerticesData);
 	TArray<FVertexData> SortVerticesByDistance(const TArray<FVertexData>& VerticesData);
 	float GetWaveHeight(float x, float y);
 	TArray<FVector> Vertices;

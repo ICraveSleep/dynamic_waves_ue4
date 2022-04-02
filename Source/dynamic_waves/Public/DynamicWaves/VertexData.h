@@ -10,6 +10,6 @@
 struct FVertexData
 {
  float SurfaceDistance;
- int32_t Index;
+ int32_t Index;  //TODO(Sondre): Seems like this one can be removed
  FVector WorldVertexLocation;
 };
