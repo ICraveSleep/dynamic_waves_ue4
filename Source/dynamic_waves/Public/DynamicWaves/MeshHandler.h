@@ -22,6 +22,7 @@ public:
 	void PrintMeshInfo();
 	void DrawVertices();
 	void UpdateMeshTriangles(const TArray<FVector>& MeshVertices);
+	void AddForces(UStaticMeshComponent* Mesh);
 private:
 
 	void AddUnderWaterTriangles();

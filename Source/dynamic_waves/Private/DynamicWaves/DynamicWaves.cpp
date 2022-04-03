@@ -72,10 +72,13 @@ void ADynamicWaves::Tick(float DeltaTime)
 			Vertices[VertexIndex] = WorldSpaceVertexLocation;
 		}
 		MeshHandler->UpdateMeshTriangles(Vertices);
+		//MeshHandler->AddForces(BoatMesh)
 	}
-	float height = 30*sin(this->GetWorld()->TimeSeconds);
-	FVector move = {0.0f, 0.0f, height};
-	BoatMesh->SetRelativeLocation(move);
+	 float height = 80*sin(0.05f*this->GetWorld()->TimeSeconds + 3.14f);
+	 FVector current_locaiton = BoatMesh->GetRelativeLocation();
+	 FVector move = {current_locaiton.X, current_locaiton.Y, height};
+	 BoatMesh->SetRelativeLocation(move);
+	
 }
 
 

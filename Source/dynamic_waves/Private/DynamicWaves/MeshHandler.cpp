@@ -123,7 +123,7 @@ void FMeshHandler::AddUnderWaterTriangles()
 			//Add Two triangles when Two Vertices are under water
 			else if(VertexTriangle[0].SurfaceDistance > 0.0f && VertexTriangle[1].SurfaceDistance < 0.0f && VertexTriangle[2].SurfaceDistance < 0.0f)
 			{
-				AddTwoSubTriangles(VertexTriangle);
+				//AddTwoSubTriangles(VertexTriangle);
 			}
 			else
 			{
@@ -144,6 +144,9 @@ void FMeshHandler::DrawTriangles()
 
 		// Draw triangle center dots
 		DrawDebugPoint(WorldPointer, UnderWaterTriangles[i].GetCenter(), 15.0f, FColor(0, 0, 0),false, 0.0f);
+
+		//Draw normal vector
+		DrawDebugLine(WorldPointer, UnderWaterTriangles[i].GetCenter(), UnderWaterTriangles[i].GetCenter() + UnderWaterTriangles[i].GetNormal()*100.0f, FColor::Green, false, 0.0f, 0, 2.0f);
 
 		//Draw Red dots
 		DrawDebugPoint(WorldPointer, UnderWaterTriangles[i].GetPointA(), 15.0f, FColor::Red,false, 0.0f);
@@ -211,9 +214,14 @@ void FMeshHandler::AddOneSubTriangle(const TArray<FVertexData>& VerticesData)
 	FVector LJ_H = t_H * LH;
 	FVector J_H = LJ_H + Lower;
 	
-	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(J_H);
-	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Lower);
-	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(J_M);
+	//UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(J_H);
+	//UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Lower);
+	//UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(J_M);
+	
+	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(J_M);
+    UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Lower);
+    UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(J_H);
+	
 	++UnderWaterTrianglesIndex;
 }
 
@@ -243,11 +251,17 @@ void FMeshHandler::AddTwoSubTriangles(const TArray<FVertexData>& VerticesData)
 	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(I_M);
 	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Middle);
 	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(Lower);
+	//UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(Lower);
+    //UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Middle);
+    //UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(I_M);
 	++UnderWaterTrianglesIndex;
 	
 	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(I_M);
 	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Lower);
 	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(I_L);
+	//UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(I_L);
+    //UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Lower);
+    //UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(I_M);
 	++UnderWaterTrianglesIndex;
 }
 
@@ -265,5 +279,40 @@ float FMeshHandler::GetWaveHeight(float x, float y)
 	return 0.0f; // TODO(Sondre): Currently using flat water
 }
 
+void FMeshHandler::AddForces(UStaticMeshComponent* Mesh)
+{
+	
+	for(int i = 1; i < UnderWaterTrianglesIndex; i++){
+		
+		// FVector Force =  1027.0f * (UnderWaterTriangles[i].GetCenter().Z - 0.0f)*0.03f * UnderWaterTriangles[i].GetArea() * UnderWaterTriangles[i].GetNormal()*0.01f; // Change to wave height
+		FVector Force =  1027.0f * (UnderWaterTriangles[i].GetCenter().Z - 0.0f)*0.03f * UnderWaterTriangles[i].GetArea() * UnderWaterTriangles[i].GetNormal()*10.0f; // Change to wave height
+		// FVector Force =  1027.0f * (UnderWaterTriangles[i].GetCenter().Z - WaveHeight)*0.03f * UnderWaterTriangles[i].GetArea() * UnderWaterTriangles[i].GetNormal()*0.01f; // Change to wave height
+		Force.X = 0.0f;
+		Force.Y = 0.0f;
+		
+		Mesh->AddForceAtLocation(Force, UnderWaterTriangles[i].GetCenter(), NAME_None);
+		//UE_LOG(LogTemp, Warning, TEXT("Force: %f"), Force.Z);
+		FVector drag = {0.0f, 0.0f, 0.0f};
+		float C = 8.8f;
+		float R = 0;
+		FVector V = Mesh->GetComponentVelocity();
+		V = V*0.01f;
+		FVector W = Mesh->GetPhysicsAngularVelocityInRadians();
+		FVector R_BA = UnderWaterTriangles[i].GetCenter() - Mesh->GetCenterOfMass();
+		FVector V_A =  V + FVector::CrossProduct(W, R_BA)*0.01f;
+		
+		if(V_A.Z < 0)
+		{
+			R = 0.5f*UnderWaterTriangles[i].GetArea()*1027.0f*C*V_A.Z*V_A.Z;	
+		}
+		else
+		{
+			R = -0.5f*UnderWaterTriangles[i].GetArea()*1027.0f*C*V_A.Z*V_A.Z;
+		}
+			
+		drag.Z = R;
+		Mesh->AddForceAtLocation(drag, UnderWaterTriangles[i].GetCenter(), NAME_None);
+	}
+}
 
 
