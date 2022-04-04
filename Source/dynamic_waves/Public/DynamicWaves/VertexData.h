@@ -10,6 +10,6 @@
 struct FVertexData
 {
  float SurfaceDistance;
- int32_t Index;  //TODO(Sondre): Seems like this one can be removed
+ int32_t Index;  // Index used when constructing the custom sub triangles
  FVector WorldVertexLocation;
 };

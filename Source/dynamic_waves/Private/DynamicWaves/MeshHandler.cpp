@@ -123,7 +123,7 @@ void FMeshHandler::AddUnderWaterTriangles()
 			//Add Two triangles when Two Vertices are under water
 			else if(VertexTriangle[0].SurfaceDistance > 0.0f && VertexTriangle[1].SurfaceDistance < 0.0f && VertexTriangle[2].SurfaceDistance < 0.0f)
 			{
-				//AddTwoSubTriangles(VertexTriangle);
+				AddTwoSubTriangles(VertexTriangle);
 			}
 			else
 			{
@@ -195,12 +195,36 @@ TArray<FVertexData> FMeshHandler::SortVerticesByDistance(const TArray<FVertexDat
 void FMeshHandler::AddOneSubTriangle(const TArray<FVertexData>& VerticesData)
 {
 	//The received VerticesData reference has sorted them by descending value (0 > 1 > 2). 
-	FVector Upper = VerticesData[0].WorldVertexLocation;
-	FVector Middle = VerticesData[1].WorldVertexLocation;
+	FVector Upper;
+	FVector Middle;
 	FVector Lower = VerticesData[2].WorldVertexLocation;
-	float SurfaceDistanceUpper = VerticesData[0].SurfaceDistance;
-	float SurfaceDistanceMiddle = VerticesData[0].SurfaceDistance;
+	uint8_t UpperIndex = VerticesData[2].Index + 1;
+
+	if(UpperIndex > 2)
+	{
+		UpperIndex = 0;
+	}
+	
+	float SurfaceDistanceUpper;
+	float SurfaceDistanceMiddle;
 	float SurfaceDistanceLower = VerticesData[2].SurfaceDistance;
+
+	if(VerticesData[1].Index == UpperIndex)
+	{
+		Upper = VerticesData[0].WorldVertexLocation;
+		Middle = VerticesData[1].WorldVertexLocation;
+
+		SurfaceDistanceUpper = VerticesData[0].SurfaceDistance;
+		SurfaceDistanceMiddle = VerticesData[1].SurfaceDistance;
+	}
+	else
+	{
+		Upper = VerticesData[1].WorldVertexLocation;
+		Middle = VerticesData[0].WorldVertexLocation;
+
+		SurfaceDistanceUpper = VerticesData[1].SurfaceDistance;
+		SurfaceDistanceMiddle = VerticesData[0].SurfaceDistance;
+	}
 
 	// Cutting Algorithm from: https://www.gamedeveloper.com/programming/water-interaction-model-for-boats-in-video-games
 	//Point J_M
@@ -214,14 +238,9 @@ void FMeshHandler::AddOneSubTriangle(const TArray<FVertexData>& VerticesData)
 	FVector LJ_H = t_H * LH;
 	FVector J_H = LJ_H + Lower;
 	
-	//UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(J_H);
-	//UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Lower);
-	//UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(J_M);
-	
-	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(J_M);
-    UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Lower);
-    UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(J_H);
-	
+	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(J_H);
+	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Lower);
+	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(J_M);
 	++UnderWaterTrianglesIndex;
 }
 
@@ -229,12 +248,36 @@ void FMeshHandler::AddTwoSubTriangles(const TArray<FVertexData>& VerticesData)
 {
 	
 	//The received VerticesData reference has sorted them by descending value (0 > 1 > 2). 
-	FVector Upper = VerticesData[0].WorldVertexLocation;
-	FVector Middle = VerticesData[1].WorldVertexLocation;
-	FVector Lower = VerticesData[2].WorldVertexLocation;
+	FVector Upper =  VerticesData[0].WorldVertexLocation;
+	FVector Middle;
+	FVector Lower;
+	
+	int8_t MiddleIndex = VerticesData[0].Index - 1;
+	if(MiddleIndex < 0)
+	{
+		MiddleIndex = 2;
+	}
+	
 	float SurfaceDistanceUpper = VerticesData[0].SurfaceDistance;
-	float SurfaceDistanceMiddle = VerticesData[1].SurfaceDistance;
-	float SurfaceDistanceLower = VerticesData[2].SurfaceDistance;
+	float SurfaceDistanceMiddle;
+	float SurfaceDistanceLower;
+
+	if(VerticesData[1].Index == MiddleIndex)
+	{
+		Middle = VerticesData[2].WorldVertexLocation;
+		Lower = VerticesData[1].WorldVertexLocation;
+
+		SurfaceDistanceMiddle = VerticesData[2].SurfaceDistance;
+		SurfaceDistanceLower = VerticesData[1].SurfaceDistance;
+	}
+	else
+	{
+		Middle = VerticesData[1].WorldVertexLocation;
+		Lower = VerticesData[2].WorldVertexLocation;
+
+		SurfaceDistanceMiddle = VerticesData[1].SurfaceDistance;
+		SurfaceDistanceLower = VerticesData[2].SurfaceDistance;
+	}
 
 	// Cutting Algorithm from: https://www.gamedeveloper.com/programming/water-interaction-model-for-boats-in-video-games
 	//Point I_M
@@ -248,20 +291,16 @@ void FMeshHandler::AddTwoSubTriangles(const TArray<FVertexData>& VerticesData)
 	FVector LI_L = t_L * LH;
 	FVector I_L = LI_L + Lower;
 	
-	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(I_M);
-	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Middle);
-	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(Lower);
-	//UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(Lower);
-    //UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Middle);
-    //UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(I_M);
+
+	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(Middle);
+    UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Lower);
+    UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(I_L);
 	++UnderWaterTrianglesIndex;
 	
-	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(I_M);
-	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Lower);
-	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(I_L);
-	//UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(I_L);
-    //UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(Lower);
-    //UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(I_M);
+	
+	UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointA(Middle);
+    UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointB(I_L);
+    UnderWaterTriangles[UnderWaterTrianglesIndex].SetPointC(I_M);
 	++UnderWaterTrianglesIndex;
 }
 
