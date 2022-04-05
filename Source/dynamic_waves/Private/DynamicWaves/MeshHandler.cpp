@@ -135,7 +135,7 @@ void FMeshHandler::AddUnderWaterTriangles()
 
 void FMeshHandler::DrawTriangles()
 {
-	for(uint32_t i = 0; i < UnderWaterTrianglesIndex; i++)
+	for(uint16_t i = 0; i < UnderWaterTrianglesIndex; i++)
 	{
 		// Draw triangles
 		DrawDebugLine(WorldPointer, UnderWaterTriangles[i].GetPointA(), UnderWaterTriangles[i].GetPointB(), FColor{255,255,255}, false, 0.0f, 0, 2.0f);
@@ -321,10 +321,10 @@ float FMeshHandler::GetWaveHeight(float x, float y)
 void FMeshHandler::AddForces(UStaticMeshComponent* Mesh)
 {
 	
-	for(int i = 1; i < UnderWaterTrianglesIndex; i++){
+	for(int i = 0; i < UnderWaterTrianglesIndex; i++){
 		
 		// FVector Force =  1027.0f * (UnderWaterTriangles[i].GetCenter().Z - 0.0f)*0.03f * UnderWaterTriangles[i].GetArea() * UnderWaterTriangles[i].GetNormal()*0.01f; // Change to wave height
-		FVector Force =  1027.0f * (UnderWaterTriangles[i].GetCenter().Z - 0.0f)*0.03f * UnderWaterTriangles[i].GetArea() * UnderWaterTriangles[i].GetNormal()*10.0f; // Change to wave height
+		FVector Force =  1027.0f * (UnderWaterTriangles[i].GetCenter().Z - 0.0f)*0.03f * UnderWaterTriangles[i].GetArea() * UnderWaterTriangles[i].GetNormal()*100.0f; // Change to wave height
 		// FVector Force =  1027.0f * (UnderWaterTriangles[i].GetCenter().Z - WaveHeight)*0.03f * UnderWaterTriangles[i].GetArea() * UnderWaterTriangles[i].GetNormal()*0.01f; // Change to wave height
 		Force.X = 0.0f;
 		Force.Y = 0.0f;
@@ -332,7 +332,7 @@ void FMeshHandler::AddForces(UStaticMeshComponent* Mesh)
 		Mesh->AddForceAtLocation(Force, UnderWaterTriangles[i].GetCenter(), NAME_None);
 		//UE_LOG(LogTemp, Warning, TEXT("Force: %f"), Force.Z);
 		FVector drag = {0.0f, 0.0f, 0.0f};
-		float C = 8.8f;
+		float C = 88.0f;  // 8.8f
 		float R = 0;
 		FVector V = Mesh->GetComponentVelocity();
 		V = V*0.01f;
