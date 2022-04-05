@@ -55,7 +55,7 @@ float FTriangleData::GetArea() const
 		VectorAngle = 0;
 	}
 	float TriangleArea = 0.5*Distance_AB*Distance_AC*sin(VectorAngle); // is in cm^2
-	TriangleArea = TriangleArea*0.00001; // Convert to m^2  //TODO(Sondre): Maybe all functions should return in cm^2 instead to follow UE standard
+	// TriangleArea = TriangleArea*0.00001; // Convert to m^2  //TODO(Sondre): Maybe all functions should return in cm^2 instead to follow UE standard
 	return TriangleArea;
 }
 

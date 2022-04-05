@@ -41,5 +41,6 @@ private:
 	int32_t NumberOfTriangles;
 	FIndexArrayView TriangleIndexes;
 	UWorld* WorldPointer;
-	
+	float FluidDensity = 0.0001027f; // kg/cm^3
+	float Gravity = 980.0f; // kgcm/s^2
 };

@@ -3,6 +3,8 @@
 
 #include "DynamicWaves/MeshHandler.h"
 
+#include "PhysicsEngine/PhysicsSettings.h"
+
 
 // FMeshHandler::FMeshHandler(uint32_t VertexSizeIn, uint32_t TriangleSizeIn, const ADynamicWaves* ActorComponentPtr) : ActorPointer(ActorComponentPtr)
 FMeshHandler::FMeshHandler(FIndexArrayView IndexArrayView, uint32_t VertexSizeIn, uint32_t TriangleSizeIn, UWorld* UWorld) : WorldPointer(UWorld)
@@ -323,16 +325,17 @@ void FMeshHandler::AddForces(UStaticMeshComponent* Mesh)
 	
 	for(int i = 0; i < UnderWaterTrianglesIndex; i++){
 		
-		// FVector Force =  1027.0f * (UnderWaterTriangles[i].GetCenter().Z - 0.0f)*0.03f * UnderWaterTriangles[i].GetArea() * UnderWaterTriangles[i].GetNormal()*0.01f; // Change to wave height
-		FVector Force =  1027.0f * (UnderWaterTriangles[i].GetCenter().Z - 0.0f)*0.03f * UnderWaterTriangles[i].GetArea() * UnderWaterTriangles[i].GetNormal()*100.0f; // Change to wave height
-		// FVector Force =  1027.0f * (UnderWaterTriangles[i].GetCenter().Z - WaveHeight)*0.03f * UnderWaterTriangles[i].GetArea() * UnderWaterTriangles[i].GetNormal()*0.01f; // Change to wave height
+		
+		
+		FVector Force =  FluidDensity * Gravity * (UnderWaterTriangles[i].GetCenter().Z - 0.0f) * UnderWaterTriangles[i].GetArea() * UnderWaterTriangles[i].GetNormal(); // Change to wave height
+		
 		Force.X = 0.0f;
 		Force.Y = 0.0f;
-		
+		// UPhysicsSettings::Get()->DefaultGravityZ;
 		Mesh->AddForceAtLocation(Force, UnderWaterTriangles[i].GetCenter(), NAME_None);
 		//UE_LOG(LogTemp, Warning, TEXT("Force: %f"), Force.Z);
 		FVector drag = {0.0f, 0.0f, 0.0f};
-		float C = 88.0f;  // 8.8f
+		float C = 0.00128f;  // 8.8f
 		float R = 0;
 		FVector V = Mesh->GetComponentVelocity();
 		V = V*0.01f;
