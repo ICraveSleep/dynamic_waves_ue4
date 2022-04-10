@@ -315,15 +315,15 @@ float FMeshHandler::GetWaveHeight(float x, float y)
 	WaveDirection.Normalize();
 	FVector2D BoatPosXY = {x, y};
 	float PlaneLocation = FVector2D::DotProduct(BoatPosXY, WaveDirection);
-	float WaveHeight = 150.0f*sin(0.01*(PI*2/48)*PlaneLocation + WorldTime);
-	// return WaveHeight;
-	return 0.0f; // TODO(Sondre): Currently using flat water
+	float WaveHeight = 45.0f*sin(0.01*(PI*2/48)*PlaneLocation + WorldTime);
+	return WaveHeight;
+	// return 0.0f; // TODO(Sondre): Currently using flat water
 }
 
 void FMeshHandler::AddForces(UStaticMeshComponent* Mesh)
 {
 	
-	for(int i = 0; i < UnderWaterTrianglesIndex; i++){
+	for(int i = 0; i < UnderWaterTrianglesIndex - 1; i++){
 		
 		
 		
@@ -335,13 +335,13 @@ void FMeshHandler::AddForces(UStaticMeshComponent* Mesh)
 		Mesh->AddForceAtLocation(Force, UnderWaterTriangles[i].GetCenter(), NAME_None);
 		//UE_LOG(LogTemp, Warning, TEXT("Force: %f"), Force.Z);
 		FVector drag = {0.0f, 0.0f, 0.0f};
-		float C = 0.00128f;  // 8.8f
+		float C = 0.00000128f;
 		float R = 0;
 		FVector V = Mesh->GetComponentVelocity();
-		V = V*0.01f;
+		
 		FVector W = Mesh->GetPhysicsAngularVelocityInRadians();
 		FVector R_BA = UnderWaterTriangles[i].GetCenter() - Mesh->GetCenterOfMass();
-		FVector V_A =  V + FVector::CrossProduct(W, R_BA)*0.01f;
+		FVector V_A =  V + FVector::CrossProduct(W, R_BA);
 		
 		if(V_A.Z < 0)
 		{

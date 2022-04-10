@@ -48,12 +48,27 @@ float FTriangleData::GetArea() const
 	
 	const float Distance_AB = FVector::Distance(PointB, PointA);
 	const float Distance_AC = FVector::Distance(PointC, PointA);
-	const float DotProduct = FVector::DotProduct(PointB-PointA, PointC-PointA) / (Distance_AB*Distance_AC);
+	float DistanceDot = Distance_AB*Distance_AC;
+
+	float DotProduct;
+	
+
+	if (abs(DistanceDot) <= 0.001f){
+		// DotProduct = 0.0f;
+		// UE_LOG(LogTemp, Warning, TEXT("DistanceDot = %f, DotProduct = %f, PointA: {%f, %f, %f}, PointB: {%f, %f, %f}, PointC: {%f, %f, %f}"), DistanceDot, DotProduct, PointA.X, PointA.Y, PointA.Z, PointB.X, PointB.Y, PointB.Z, PointC.X, PointC.Y, PointC.Z);
+		// UE_LOG(LogTemp, Warning, TEXT("PointB-PointA: {%f, %f, %f}, PointC-PointA: {%f, %f, %f}"), PointB.X - PointA.X, PointB.Y - PointA.Y, PointB.Z - PointA.Z, PointC.X - PointA.X, PointC.Y - PointA.Y, PointC.Z - PointA.Z);
+		return 0.0f;
+	}
+
+	DotProduct = FVector::DotProduct(PointB-PointA, PointC-PointA) / DistanceDot;
+	
 	float VectorAngle = acos(DotProduct);
 	if(VectorAngle < 0){
+	    UE_LOG(LogTemp, Warning, TEXT("DotProduct=%f"), DotProduct);
 		UE_LOG(LogTemp, Warning, TEXT("Calculated angle that was negative: VectorAngle=%f"), VectorAngle);
 		VectorAngle = 0;
 	}
+	
 	float TriangleArea = 0.5*Distance_AB*Distance_AC*sin(VectorAngle); // is in cm^2
 	// TriangleArea = TriangleArea*0.00001; // Convert to m^2  //TODO(Sondre): Maybe all functions should return in cm^2 instead to follow UE standard
 	return TriangleArea;

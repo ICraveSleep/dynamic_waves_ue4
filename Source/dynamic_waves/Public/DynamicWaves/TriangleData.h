@@ -17,6 +17,10 @@ public:
 	void SetPointA(const FVector &Point);
 	void SetPointB(const FVector &Point);
 	void SetPointC(const FVector &Point);
+
+	// void SetSurfaceA(const FVector &Point);
+	// void SetSurfaceA(const FVector &Point);
+	// void SetSurfaceA(const FVector &Point);
 	
 	FVector GetPointA() const;
 	FVector GetPointB() const;
