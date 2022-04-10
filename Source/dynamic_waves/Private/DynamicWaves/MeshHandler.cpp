@@ -315,7 +315,7 @@ float FMeshHandler::GetWaveHeight(float x, float y)
 	WaveDirection.Normalize();
 	FVector2D BoatPosXY = {x, y};
 	float PlaneLocation = FVector2D::DotProduct(BoatPosXY, WaveDirection);
-	float WaveHeight = 45.0f*sin(0.01*(PI*2/48)*PlaneLocation + WorldTime);
+	float WaveHeight = WaveAmplitude*sin(0.01*(PI*2/48)*PlaneLocation + WorldTime);
 	return WaveHeight;
 	// return 0.0f; // TODO(Sondre): Currently using flat water
 }
@@ -325,9 +325,7 @@ void FMeshHandler::AddForces(UStaticMeshComponent* Mesh)
 	
 	for(int i = 0; i < UnderWaterTrianglesIndex - 1; i++){
 		
-		
-		
-		FVector Force =  FluidDensity * Gravity * (UnderWaterTriangles[i].GetCenter().Z - 0.0f) * UnderWaterTriangles[i].GetArea() * UnderWaterTriangles[i].GetNormal(); // Change to wave height
+		FVector Force =  FluidDensity * Gravity * (UnderWaterTriangles[i].GetCenter().Z - GetWaveHeight(UnderWaterTriangles[i].GetCenter().X, UnderWaterTriangles[i].GetCenter().Y)) * UnderWaterTriangles[i].GetArea() * UnderWaterTriangles[i].GetNormal();
 		
 		Force.X = 0.0f;
 		Force.Y = 0.0f;
@@ -335,7 +333,7 @@ void FMeshHandler::AddForces(UStaticMeshComponent* Mesh)
 		Mesh->AddForceAtLocation(Force, UnderWaterTriangles[i].GetCenter(), NAME_None);
 		//UE_LOG(LogTemp, Warning, TEXT("Force: %f"), Force.Z);
 		FVector drag = {0.0f, 0.0f, 0.0f};
-		float C = 0.00000128f;
+		float C = 0.000000128f;
 		float R = 0;
 		FVector V = Mesh->GetComponentVelocity();
 		

@@ -18,10 +18,10 @@ void AMaterialAccessTest::BeginPlay()
 {
 	Super::BeginPlay();
 	Material = Mesh->GetMaterial(0);
-	float WaveHeight = 30*sin(GetWorld()->TimeSeconds);
+	float WaveHeight = 120.0f*sin(GetWorld()->TimeSeconds);
 	DynamicMaterial = UMaterialInstanceDynamic::Create(Material, this);
 	Mesh->SetMaterial(0, DynamicMaterial);
-	DynamicMaterial->SetScalarParameterValue(TEXT("WaveHeight"), 45.0f);
+	DynamicMaterial->SetScalarParameterValue(TEXT("WaveHeight"), 120.0f);
 	
 
 }

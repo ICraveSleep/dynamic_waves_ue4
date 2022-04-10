@@ -8,4 +8,5 @@ direction = mul(direction, 0.01f);
 float3 phase = direction - time;
 float3 wave = 30.0f*cos((PI*2/3)*phase); 
 float height = wave.z;
+
 return float3(0.0, 0.0, height);
