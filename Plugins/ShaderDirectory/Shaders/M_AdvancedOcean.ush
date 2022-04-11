@@ -2,7 +2,7 @@ float time = Time;
 float PI = 3.1415926535897932f;
 float2 pos = Pos.xy;
 
-float amplitude = 70.0f;
+float amplitude = 40.0f;
 float amplitude2 = 25.0f;
 float wave_length = 2000.0f;
 float speed = 500.0f;
@@ -14,8 +14,8 @@ float f2 = k2 * (pos.x - 250.0f * time);
 float f3 = k3 * ((pos.x - 70.0f * time));
 
 // float p_x = amplitude*cos(f);
-float p_x = amplitude*cos(f) + amplitude2*cos(f2) + 44.0f*cos(f3);
+float p_x = amplitude*cos(f) + amplitude2*cos(f2) + 15.0f*cos(f3);
 // float p_z = amplitude*sin(f);
-float p_z = amplitude*sin(f) + amplitude2*sin(f2) + 44.0f*sin(f3);
+float p_z = amplitude*sin(f) + amplitude2*sin(f2) + 15.0f*sin(f3);
 
 return float3(p_x, 0.0f, p_z);

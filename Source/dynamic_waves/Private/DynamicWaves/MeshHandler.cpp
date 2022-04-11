@@ -310,13 +310,31 @@ void FMeshHandler::AddTwoSubTriangles(const TArray<FVertexData>& VerticesData)
 
 float FMeshHandler::GetWaveHeight(float x, float y)
 {
-	float WorldTime = WorldPointer->GetTimeSeconds();
-	FVector2D WaveDirection = {1.0f, 0.0f};
-	WaveDirection.Normalize();
-	FVector2D BoatPosXY = {x, y};
-	float PlaneLocation = FVector2D::DotProduct(BoatPosXY, WaveDirection);
-	float WaveHeight = WaveAmplitude*sin(0.01*(PI*2/48)*PlaneLocation + WorldTime);
-	return WaveHeight;
+	float time = WorldPointer->GetTimeSeconds();
+	float amplitude = 40.0f;
+	float amplitude2 = 25.0f;
+	float wave_length = 2000.0f;
+	float speed = 500.0f;
+	float k = 2 * PI / wave_length;
+	float k2 = 2 * PI / 850.0f;
+	float k3 = 2 * PI / 2500.0f;
+	float f = k * (x - speed * time);
+	float f2 = k2 * (x - 250.0f * time);
+	float f3 = k3 * (x - 70.0f * time);
+
+	// float p_x = amplitude*cos(f);
+	float p_x = amplitude*cos(f) + amplitude2*cos(f2) + 15.0f*cos(f3);
+	// float p_z = amplitude*sin(f);
+	float p_z = amplitude*sin(f) + amplitude2*sin(f2) + 15.0f*sin(f3);
+
+	return p_z;
+	// float WorldTime = WorldPointer->GetTimeSeconds();
+	// FVector2D WaveDirection = {1.0f, 0.0f};
+	// WaveDirection.Normalize();
+	// FVector2D BoatPosXY = {x, y};
+	// float PlaneLocation = FVector2D::DotProduct(BoatPosXY, WaveDirection);
+	// float WaveHeight = WaveAmplitude*sin(0.01*(PI*2/48)*PlaneLocation + WorldTime);
+	// return WaveHeight;
 	// return 0.0f; // TODO(Sondre): Currently using flat water
 }
 
